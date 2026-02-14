@@ -2,76 +2,262 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>더심온 소방상담</title>
     <style>
-        body { font-family: sans-serif; background-color: #f5f7fb; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: #fff; padding: 20px; }
-        #login-screen input { width: 85%; padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 18px; }
-        #login-screen button { width: 90%; padding: 15px; background: #007bff; color: white; border: none; border-radius: 10px; font-size: 18px; }
-
-        #chat-screen { display: none; flex-direction: column; height: 100%; }
-        header { background: #007bff; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: bold; }
-        #chat-window { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        
-        .message { 
-            max-width: 80%; padding: 12px 16px; border-radius: 15px; font-size: 18px; line-height: 1.6; 
-            white-space: pre-wrap; /* 띄어쓰기 및 줄바꿈 보존 */
-            word-break: keep-all; 
+        :root {
+            --main-color: #007bff;
+            --bg-color: #f5f7fb;
+            --text-size: 19px;
         }
-        .user { align-self: flex-end; background: #007bff; color: white; }
-        .bot { align-self: flex-start; background: #fff; color: #333; border: 1px solid #eee; }
 
-        #input-area { padding: 15px; background: #fff; display: flex; gap: 10px; border-top: 1px solid #eee; }
-        #user-input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 12px 15px; font-size: 18px; outline: none; }
-        #send-btn { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-size: 16px; cursor: pointer; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 로그인 화면 */
+        #login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: #fff;
+            padding: 30px;
+        }
+
+        #login-screen input {
+            width: 100%;
+            max-width: 350px;
+            padding: 18px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            font-size: var(--text-size);
+            box-sizing: border-box;
+        }
+
+        #login-screen button {
+            width: 100%;
+            max-width: 350px;
+            padding: 18px;
+            background: var(--main-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        /* 채팅 화면 */
+        #chat-screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        header {
+            background: var(--main-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        header button {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+
+        #chat-window {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 14px 18px;
+            border-radius: 20px;
+            line-height: 1.8;
+            font-size: var(--text-size);
+            word-break: keep-all;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .user {
+            align-self: flex-end;
+            background-color: var(--main-color);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bot {
+            align-self: flex-start;
+            background-color: white;
+            color: #222;
+            border: 1px solid #eee;
+            border-top-left-radius: 4px;
+        }
+
+        /* 로딩 애니메이션 점 효과 */
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            padding: 5px 0;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: #bbb;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-8px); }
+        }
+
+        /* 입력 영역 */
+        #input-area {
+            padding: 15px;
+            background: white;
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            border-top: 1px solid #eee;
+        }
+
+        #user-input {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 24px;
+            padding: 12px 18px;
+            font-size: var(--text-size);
+            resize: none;
+            max-height: 150px;
+            overflow-y: auto;
+            line-height: 1.5;
+            outline: none;
+            font-family: inherit;
+        }
+
+        #send-btn {
+            background: var(--main-color);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        #send-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+            transform: translateX(2px);
+        }
     </style>
 </head>
 <body>
 
 <div id="login-screen">
+    <img src="icon.png" width="100" style="border-radius: 22px; margin-bottom: 20px;">
     <h2>더심온 소방상담</h2>
     <input type="text" id="userName" placeholder="성함">
-    <input type="number" id="userPhone" placeholder="전화번호 뒷자리 4자리">
-    <button onclick="startChat()">상담 시작</button>
+    <input type="number" id="userPhone" placeholder="전화번호 뒷자리(4자리)">
+    <button onclick="startChat()">상담 시작하기</button>
 </div>
 
 <div id="chat-screen">
-    <header><span>더심온</span><button onclick="location.reload()" style="background:none; border:1px solid #fff; color:white; border-radius:10px; padding:5px 10px; font-size:14px;">상담 종료</button></header>
+    <header>
+        <span>더심온</span>
+        <button onclick="location.reload()">상담 종료</button>
+    </header>
     <div id="chat-window"></div>
     <div id="input-area">
-        <input type="text" id="user-input" placeholder="메시지를 입력하세요..." onkeypress="if(event.keyCode===13) sendMessage()">
-        <button id="send-btn" onclick="sendMessage()">전송</button>
+        <textarea id="user-input" rows="1" placeholder="메시지 입력..." oninput="autoResize(this)"></textarea>
+        <button id="send-btn" onclick="sendMessage()">
+            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
     </div>
 </div>
 
 <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycby23YAnHu0H2lUgEagmh80GtTywBy1wMFkjlCoMbr_w6bxZ70X3DGNkwRsF7FcDGFqD/exec";
+    const GAS_URL = "여기에_가장_최신_배포_URL_입력"; 
     let userId = "";
+
+    function autoResize(obj) {
+        obj.style.height = "auto";
+        obj.style.height = obj.scrollHeight + "px";
+        const win = document.getElementById('chat-window');
+        win.scrollTop = win.scrollHeight;
+    }
 
     function startChat() {
         const name = document.getElementById('userName').value.trim();
         const phone = document.getElementById('userPhone').value.trim();
-        if(name && phone.length===4) {
+        if (name && phone.length === 4) {
             userId = name + "_" + phone;
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('chat-screen').style.display = 'flex';
-            addMessage("반갑습니다. 대원님을 위한 따뜻한 동료, 더심온입니다. 오늘 어떤 일이 있으셨나요?", 'bot');
-        } else { alert("정보를 정확히 입력해주세요."); }
+            typeWriter("안녕하세요, 대원님. 따뜻한 상담사 더심온입니다. 오늘 하루는 어떠셨나요?");
+        } else {
+            alert("정보를 정확히 입력해주세요.");
+        }
     }
 
     async function sendMessage() {
         const input = document.getElementById('user-input');
         const message = input.value.trim();
-        if(!message) return;
+        if (!message) return;
+
         addMessage(message, 'user');
         input.value = '';
+        input.style.height = 'auto';
+
+        const loadingId = showLoading();
 
         try {
-            const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ userId, message }) });
+            const response = await fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({ userId: userId, message: message })
+            });
             const data = await response.json();
-            addMessage(data.reply, 'bot');
-        } catch(e) { addMessage("연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요.", 'bot'); }
+            hideLoading(loadingId);
+            typeWriter(data.reply);
+        } catch (e) {
+            hideLoading(loadingId);
+            addMessage("연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요.", 'bot');
+        }
     }
 
     function addMessage(text, sender) {
@@ -82,7 +268,42 @@
         window.appendChild(msgDiv);
         window.scrollTop = window.scrollHeight;
     }
+
+    function typeWriter(text) {
+        const window = document.getElementById('chat-window');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'message bot';
+        window.appendChild(msgDiv);
+        
+        let i = 0;
+        const speed = 40; 
+        function typing() {
+            if (i < text.length) {
+                msgDiv.innerText += text.charAt(i);
+                i++;
+                window.scrollTop = window.scrollHeight;
+                setTimeout(typing, speed);
+            }
+        }
+        typing();
+    }
+
+    function showLoading() {
+        const window = document.getElementById('chat-window');
+        const id = 'loading-' + Date.now();
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'message bot';
+        msgDiv.id = id;
+        msgDiv.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+        window.appendChild(msgDiv);
+        window.scrollTop = window.scrollHeight;
+        return id;
+    }
+
+    function hideLoading(id) {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+    }
 </script>
 </body>
 </html>
-
