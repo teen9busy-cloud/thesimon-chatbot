@@ -23,41 +23,57 @@
             overflow: hidden;
         }
 
-        /* 설치 안내 레이어 (브라우저 접속 시에만 노출) */
-        #install-guide {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 9999;
-            color: white;
-            text-align: center;
-            padding: 60px 25px;
-            box-sizing: border-box;
-        }
-
-        .install-btn {
-            width: 100%;
-            max-width: 300px;
-            padding: 20px;
-            background: var(--main-color);
-            color: white;
-            border: none;
-            border-radius: 15px;
-            font-size: 20px;
-            font-weight: bold;
-            margin-top: 30px;
-        }
-
-        /* 로그인 화면 */
-        #login-screen {
-            display: none;
+        /* 랜딩 페이지 (선택 화면) */
+        #landing-page {
+            display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100%;
-            background: #fff;
             padding: 30px;
+            text-align: center;
+            background: white;
+            z-index: 1000;
+        }
+
+        .choice-card {
+            width: 100%;
+            max-width: 340px;
+            padding: 25px;
+            background: #fff;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .btn-install { background: var(--main-color); color: white; }
+        .btn-web { background: #e9ecef; color: #495057; }
+
+        /* 상담 시스템 컨테이너 */
+        #app-container {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        #login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 30px;
+            background: #fff;
         }
 
         input {
@@ -71,20 +87,6 @@
             box-sizing: border-box;
         }
 
-        .start-btn {
-            width: 100%;
-            max-width: 350px;
-            padding: 18px;
-            background: var(--main-color);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        /* 채팅 화면 */
         #chat-screen {
             display: none;
             flex-direction: column;
@@ -125,7 +127,6 @@
         .user { align-self: flex-end; background: var(--main-color); color: white; border-bottom-right-radius: 4px; }
         .bot { align-self: flex-start; background: white; border: 1px solid #eee; color: #222; border-top-left-radius: 4px; }
 
-        /* 로딩 애니메이션 */
         .typing-dots { display: flex; gap: 4px; padding: 5px 0; }
         .typing-dots span { width: 6px; height: 6px; background: #bbb; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; }
         .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
@@ -133,7 +134,7 @@
         @keyframes bounce { 0%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-7px); } }
 
         #input-area {
-            padding: 15px 15px calc(15px + env(safe-area-inset-bottom)) 15px;
+            padding: 15px;
             background: white;
             display: flex;
             align-items: flex-end;
@@ -150,89 +151,77 @@
             max-height: 120px;
             outline: none;
             resize: none;
-            font-family: inherit;
-        }
-
-        #send-btn {
-            background: var(--main-color);
-            width: 48px; height: 48px;
-            border-radius: 50%;
-            border: none;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
         }
     </style>
 </head>
 <body>
 
-<div id="install-guide">
-    <img src="icon.png" width="80" style="border-radius:20px; margin-bottom:20px;">
-    <h2>더심온 상담 앱 설치</h2>
-    <p>바탕화면에 아이콘을 만들면<br>매번 링크를 찾을 필요 없이 바로 상담이 가능합니다.</p>
-    <button id="pwa-install-btn" class="install-btn">앱 설치하기</button>
-    <button onclick="showApp()" style="margin-top:25px; background:none; border:none; color:#bbb; text-decoration:underline;">그냥 웹으로 이용할게요</button>
+<div id="landing-page">
+    <div class="choice-card">
+        <img src="icon.png" width="80" style="border-radius: 20px; margin-bottom: 15px;">
+        <h2 style="margin-bottom: 10px;">더심온 상담</h2>
+        <p style="color: #666; font-size: 15px; line-height: 1.5;">대원님, 보다 편한 이용을 위해<br>전용 앱 설치를 권장합니다.</p>
+        
+        <button class="btn btn-install" onclick="downloadApk()">전용 앱 설치하기</button>
+        <button class="btn btn-web" onclick="showApp()">웹에서 바로 시작</button>
+        
+        <p style="font-size: 12px; color: #999; margin-top: 20px;">* 아이폰 유저는 '웹에서 바로 시작'을 눌러주세요.</p>
+    </div>
 </div>
 
-<div id="login-screen">
-    <img src="icon.png" width="90" style="border-radius: 20px; margin-bottom: 20px;">
-    <h2>더심온 소방상담</h2>
-    <input type="text" id="userName" placeholder="성함">
-    <input type="number" id="userPhone" placeholder="전화번호 뒷자리 4자리">
-    <button class="start-btn" onclick="startChat()">상담 시작하기</button>
-</div>
+<div id="app-container">
+    <div id="login-screen">
+        <img src="icon.png" width="80" style="border-radius: 20px; margin-bottom: 20px;">
+        <h2 style="margin-bottom: 20px;">상담 시작하기</h2>
+        <input type="text" id="userName" placeholder="성함">
+        <input type="number" id="userPhone" placeholder="전화번호 뒷자리 4자리">
+        <button class="btn btn-install" onclick="startChat()">상담 시작</button>
+    </div>
 
-<div id="chat-screen">
-    <header><span>더심온</span><button onclick="location.reload()" style="background:none; border:1px solid #fff; color:#fff; border-radius:10px; padding:5px 10px; font-size:14px;">종료</button></header>
-    <div id="chat-window"></div>
-    <div id="input-area">
-        <textarea id="user-input" rows="1" placeholder="메시지 입력..." oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-        <button id="send-btn" onclick="sendMessage()"><svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+    <div id="chat-screen">
+        <header><span>더심온</span><button onclick="location.reload()" style="background:none; border:1px solid #fff; color:#fff; border-radius:8px; padding:5px 10px; font-size: 14px;">종료</button></header>
+        <div id="chat-window"></div>
+        <div id="input-area">
+            <textarea id="user-input" rows="1" placeholder="메시지 입력..." oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+            <button onclick="sendMessage()" style="background:var(--main-color); border:none; border-radius:50%; width:48px; height:48px; color:white; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+        </div>
     </div>
 </div>
 
 <script>
+    // 구글 드라이브 직설치 주소 적용
+    const APK_URL = "https://drive.google.com/uc?export=download&id=1O_4nvDlEeKm2C7I8RcdUEXvwgSAEV4aS";
     const GAS_URL = "https://script.google.com/macros/s/AKfycby23YAnHu0H2lUgEagmh80GtTywBy1wMFkjlCoMbr_w6bxZ70X3DGNkwRsF7FcDGFqD/exec";
     let userId = "";
-    let deferredPrompt;
 
-    // 접속 환경 확인 및 화면 제어
     window.addEventListener('load', () => {
-        // 안드로이드 스튜디오에서 설정할 표식(TheSimonApp) 확인
+        // 카톡 탈출 로직
+        if (navigator.userAgent.match(/KAKAOTALK/i)) {
+            location.href = 'intent://' + location.host + location.pathname + '#Intent;scheme=https;package=com.android.chrome;end';
+            return;
+        }
+
+        // 앱(APK)으로 접속했는지 확인 (TheSimonApp 표식)
         const isApp = navigator.userAgent.includes("TheSimonApp");
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
         if (isApp || isStandalone) {
-            // 앱이거나 홈 화면 아이콘으로 접속한 경우 바로 로그인 노출
             showApp();
-        } else {
-            // 일반 웹 브라우저 접속 시 설치 안내 노출
-            document.getElementById('install-guide').style.display = 'block';
         }
     });
 
-    function showApp() {
-        document.getElementById('install-guide').style.display = 'none';
-        document.getElementById('login-screen').style.display = 'flex';
+    function downloadApk() {
+        alert("앱 다운로드를 시작합니다. 설치 시 '무시하고 설치'를 선택해 주세요.");
+        window.location.href = APK_URL;
     }
 
-    // 설치 로직 (웹 브라우저용)
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-    });
+    function showApp() {
+        document.getElementById('landing-page').style.display = 'none';
+        document.getElementById('app-container').style.display = 'flex';
+    }
 
-    document.getElementById('pwa-install-btn').addEventListener('click', async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') showApp();
-            deferredPrompt = null;
-        } else {
-            alert("브라우저 메뉴의 '앱 설치' 또는 '홈 화면에 추가'를 이용해 주세요.");
-        }
-    });
-
-    // 상담 로직
     function startChat() {
         const n = document.getElementById('userName').value.trim();
         const p = document.getElementById('userPhone').value.trim();
@@ -240,9 +229,9 @@
             userId = n + "_" + p;
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('chat-screen').style.display = 'flex';
-            typeWriter("대원님, 반갑습니다. 따뜻한 상담사 더심온입니다. 오늘 어떤 일이 있으셨나요?");
+            typeWriter("대원님, 반갑습니다. 따뜻한 상담사 더심온입니다. 오늘 하루는 어떠셨나요?");
         } else {
-            alert("정보를 정확히 입력해주세요.");
+            alert("성함과 번호를 정확히 입력해 주세요.");
         }
     }
 
@@ -250,10 +239,13 @@
         const input = document.getElementById('user-input');
         const msg = input.value.trim();
         if(!msg) return;
+        
         addMessage(msg, 'user');
         input.value = '';
         input.style.height = 'auto';
+        
         const loadingId = showLoading();
+
         try {
             const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ userId, message: msg }) });
             const data = await res.json();
