@@ -203,7 +203,7 @@
         </button>
         
         <div class="guide-box">
-            이미 앱을 설치하셨거나 아이폰 유저라면 아래 버튼을 눌러주세요. 앱 설치 시 바탕화면 아이콘으로 바로 접속할 수 있습니다.
+            앱 설치 버튼을 누른 후 다운로드가 완료되면 상단 알림창에서 파일을 열어 설치를 완료해 주세요.
         </div>
     </div>
 </div>
@@ -230,7 +230,7 @@
 </div>
 
 <script>
-    const APK_URL = "https://drive.google.com/uc?export=download&id=1dRT5g_C4PMQQhSZpC7ISVJ751miFr7Ir";
+    const APK_URL = "https://drive.google.com/uc?id=1dRT5g_C4PMQQhSZpC7ISVJ751miFr7Ir&export=download";
     const GAS_URL = "https://script.google.com/macros/s/AKfycby23YAnHu0H2lUgEagmh80GtTywBy1wMFkjlCoMbr_w6bxZ70X3DGNkwRsF7FcDGFqD/exec";
     let userId = "";
 
@@ -249,8 +249,14 @@
     });
 
     function downloadApk() {
-        alert("앱 파일 다운로드를 시작합니다. 완료 후 상단 알림창의 파일을 눌러 '무시하고 설치'를 진행해 주세요.");
-        window.location.href = APK_URL;
+        const link = document.createElement('a');
+        link.href = APK_URL;
+        link.setAttribute('download', 'thesimon.apk');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        alert("다운로드가 시작되었습니다. 완료 알림이 뜨면 파일을 눌러 설치를 진행해 주세요. 만약 반응이 없다면 주소창 옆의 설치 아이콘을 확인해 주세요.");
     }
 
     function showApp() {
@@ -341,5 +347,4 @@
     }
 </script>
 </body>
-
 </html>
