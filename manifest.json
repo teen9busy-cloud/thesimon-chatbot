@@ -3,9 +3,9 @@
   "short_name": "더심온",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#f5f7fb",
   "theme_color": "#007bff",
-  "description": "소방 대원을 위한 마음 돌봄 상담 서비스",
+  "description": "소방 대원을 위한 AI 심리 상담 챗봇",
   "icons": [
     {
       "src": "icon.png",
@@ -16,7 +16,8 @@
     {
       "src": "icon.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
