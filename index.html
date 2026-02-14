@@ -1,109 +1,122 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>소방 대원 심리 상담</title>
-  <link rel="manifest" href="manifest.json">
-  <style>
-    body { margin: 0; font-family: 'Malgun Gothic', sans-serif; background-color: #b0c4de; display: flex; flex-direction: column; height: 100vh; }
-    #login-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background-color: #fff; }
-    #chat-screen { display: none; flex-direction: column; height: 100vh; }
-    #chat-history { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-    .message { max-width: 75%; padding: 10px 15px; border-radius: 15px; line-height: 1.4; word-break: break-all; }
-    .user-msg { background-color: #ffeb3b; align-self: flex-end; border-bottom-right-radius: 0; }
-    .bot-msg { background-color: #ffffff; align-self: flex-start; border-bottom-left-radius: 0; }
-    #input-area { display: flex; padding: 10px; background-color: #fff; border-top: 1px solid #ccc; }
-    #msg-input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 20px; outline: none; }
-    #send-btn { margin-left: 10px; padding: 10px 20px; border: none; background-color: #007bff; color: white; border-radius: 20px; cursor: pointer; }
-    .loading { align-self: flex-start; background-color: transparent; font-size: 0.9em; color: #555; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>더심온 - 소방 상담 챗봇</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f0f2f5; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: #fff; padding: 20px; text-align: center; }
+        #login-screen input { width: 80%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
+        #login-screen button { width: 85%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+        
+        #chat-screen { display: none; flex-direction: column; height: 100%; }
+        header { background: #007bff; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+        #end-btn { background: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+        
+        #chat-window { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .message { max-width: 80%; padding: 10px 15px; border-radius: 15px; line-height: 1.5; font-size: 15px; word-wrap: break-word; }
+        .user { align-self: flex-end; background-color: #007bff; color: white; }
+        .bot { align-self: flex-start; background-color: #e4e6eb; color: #050505; }
+        
+        #input-area { padding: 15px; background: white; display: flex; gap: 10px; border-top: 1px solid #ddd; }
+        #user-input { flex: 1; border: 1px solid #ddd; border-radius: 20px; padding: 10px 15px; outline: none; font-size: 15px; }
+        #send-btn { background: #007bff; color: white; border: none; width: 50px; border-radius: 20px; cursor: pointer; }
+    </style>
 </head>
 <body>
 
-  <div id="login-screen">
-    <h2>소방 상담 챗봇</h2>
-    <p>사용하실 닉네임이나 별명을 입력해주세요.</p>
-    <input type="text" id="nickname-input" placeholder="닉네임 입력" style="padding:10px; margin-bottom:10px; width:200px;">
-    <button onclick="startChat()" style="padding:10px 20px; background-color:#28a745; color:#fff; border:none; border-radius:5px;">상담 시작하기</button>
-  </div>
+<div id="login-screen">
+    <img src="icon.png" width="80" style="margin-bottom:20px; border-radius: 15px;">
+    <h2>더심온 소방상담</h2>
+    <p>성함과 전화번호 뒷자리를 입력해주세요.</p>
+    <input type="text" id="userName" placeholder="성함">
+    <input type="number" id="userPhone" placeholder="전화번호 뒷자리(4자리)" oninput="if(this.value.length > 4) this.value = this.value.slice(0, 4);">
+    <button onclick="startChat()">상담 시작하기</button>
+</div>
 
-  <div id="chat-screen">
-    <div id="chat-history"></div>
-    <div id="input-area">
-      <input type="text" id="msg-input" placeholder="여기에 메시지를 입력하세요..." onkeypress="if(event.keyCode==13) sendMessage()">
-      <button id="send-btn" onclick="sendMessage()">전송</button>
+<div id="chat-screen">
+    <header>
+        <span>더심온 심리상담</span>
+        <button id="end-btn" onclick="endChat()">상담 종료</button>
+    </header>
+    <div id="chat-window">
+        <div class="message bot">안녕하세요. 소방 대원님들의 마음을 돌보는 더심온입니다. 무엇이든 편하게 말씀해 주세요.</div>
     </div>
-  </div>
+    <div id="input-area">
+        <input type="text" id="user-input" placeholder="메시지를 입력하세요..." onkeypress="if(event.keyCode===13) sendMessage()">
+        <button id="send-btn" onclick="sendMessage()">전송</button>
+    </div>
+</div>
 
-  <script>
-    // 선생님의 구글 앱스 스크립트 웹 앱 주소입니다.
-    const GAS_URL = "https://script.google.com/macros/s/AKfycby23YAnHu0H2lUgEagmh80GtTywBy1wMFkjlCoMbr_w6bxZ70X3DGNkwRsF7FcDGFqD/exec";
-    let currentNickname = "";
-
-    // 서비스 워커 등록 (PWA 앱 설치를 위한 필수 조건)
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
-    }
+<script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycby23YAnHu0H2lUgEagmh80GtTywBy1wMFkjlCoMbr_w6bxZ70X3DGNkwRsF7FcDGFqD/exec"; //
+    let userId = "";
 
     function startChat() {
-      const nick = document.getElementById('nickname-input').value.trim();
-      if (!nick) {
-        alert("닉네임을 입력해주세요.");
-        return;
-      }
-      currentNickname = nick;
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('chat-screen').style.display = 'flex';
-      addMessage("안녕하세요. 소방 상담 챗봇입니다. 무엇이든 편하게 말씀해 주세요.", "bot");
+        const name = document.getElementById('userName').value.trim();
+        const phone = document.getElementById('userPhone').value.trim();
+        
+        if (name && phone.length === 4) {
+            userId = name + "_" + phone; //
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('chat-screen').style.display = 'flex';
+        } else {
+            alert("정보를 정확히 입력해주세요.");
+        }
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('user-input');
+        const message = input.value.trim();
+        if (!message) return;
+
+        addMessage(message, 'user');
+        input.value = '';
+
+        try {
+            const response = await fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({ userId: userId, message: message, isEnd: false }) //
+            });
+            const data = await response.json();
+            addMessage(data.reply, 'bot');
+        } catch (e) {
+            addMessage("연결 오류가 발생했습니다.", 'bot');
+        }
+    }
+
+    async function endChat() {
+        if (!confirm("상담을 종료하시겠습니까? 대화 내용이 안전하게 저장됩니다.")) return;
+        
+        try {
+            await fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({ userId: userId, message: "", isEnd: true }) //
+            });
+            alert("상담이 종료되었습니다. 초기화면으로 돌아갑니다.");
+            location.reload();
+        } catch (e) {
+            alert("종료 처리 중 오류가 발생했으나 상담은 마무리되었습니다.");
+            location.reload();
+        }
     }
 
     function addMessage(text, sender) {
-      const history = document.getElementById('chat-history');
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'message ' + (sender === 'user' ? 'user-msg' : 'bot-msg');
-      msgDiv.innerText = text;
-      history.appendChild(msgDiv);
-      history.scrollTop = history.scrollHeight;
-      return msgDiv;
+        const window = document.getElementById('chat-window');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'message ' + sender;
+        msgDiv.innerText = text;
+        window.appendChild(msgDiv);
+        window.scrollTop = window.scrollHeight;
     }
 
-    function sendMessage() {
-      const input = document.getElementById('msg-input');
-      const text = input.value.trim();
-      if (!text) return;
-
-      addMessage(text, "user");
-      input.value = "";
-      
-      const loadingMsg = addMessage("답변을 작성하고 있습니다...", "bot");
-      loadingMsg.className = 'message bot-msg loading';
-
-      // 구글 스크립트로 데이터 전송
-      fetch(GAS_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "text/plain;charset=utf-8"
-        },
-        body: JSON.stringify({
-          nickname: currentNickname,
-          message: text
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        loadingMsg.remove(); // 로딩 메시지 삭제
-        if (data.reply) {
-          addMessage(data.reply, "bot");
-        } else if (data.error) {
-          addMessage("오류가 발생했습니다: " + data.error, "bot");
-        }
-      })
-      .catch(error => {
-        loadingMsg.remove();
-        addMessage("통신에 실패했습니다. 인터넷 연결을 확인해주세요.", "bot");
-      });
+    // PWA 서비스 워커 등록
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
     }
-  </script>
+</script>
+
 </body>
 </html>
