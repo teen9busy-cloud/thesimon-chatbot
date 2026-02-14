@@ -23,34 +23,19 @@
             overflow: hidden;
         }
 
-        /* 설치 안내 레이어 고도화 */
-        #install-guide {
+        /* 아이폰용 안내 레이어 (iOS는 버튼 연동이 불가능하여 별도 안내 필요) */
+        #ios-install-guide {
             display: none;
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            bottom: 20px; left: 10px; right: 10px;
             background: rgba(0,0,0,0.9);
-            z-index: 9999;
             color: white;
-            text-align: center;
-            padding: 60px 25px;
-            box-sizing: border-box;
-        }
-
-        /* 설치 버튼 디자인 (중요) */
-        #pwa-install-btn {
-            display: none; /* 안드로이드 설치 가능 시점에만 나타남 */
-            width: 100%;
-            max-width: 300px;
             padding: 20px;
-            background: var(--main-color);
-            color: white;
-            border: none;
             border-radius: 15px;
-            font-size: 20px;
-            font-weight: bold;
-            margin-top: 30px;
-            box-shadow: 0 4px 15px rgba(0,123,255,0.4);
-            cursor: pointer;
+            z-index: 10000;
+            text-align: center;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
         #chat-screen {
@@ -132,18 +117,9 @@
 </head>
 <body>
 
-<div id="install-guide">
-    <img src="icon.png" width="80" style="border-radius:20px; margin-bottom:20px;">
-    <h2>더심온 어플 설치</h2>
-    <p style="font-size:16px; line-height:1.6; color:#ddd;">바탕화면에 아이콘을 만들면<br>매번 링크를 찾을 필요 없이 바로 상담이 가능합니다.</p>
-    
-    <button id="pwa-install-btn">앱 설치하고 시작하기</button>
-
-    <div id="ios-guide" style="display:none; margin-top:30px; background:rgba(255,255,255,0.1); padding:20px; border-radius:15px; font-size:15px;">
-        <p>아이폰은 하단 <b>공유 버튼(↑)</b>을 누른 후<br><b>'홈 화면에 추가'</b>를 선택해주세요.</p>
-    </div>
-
-    <button onclick="document.getElementById('install-guide').style.display='none'" style="margin-top:30px; background:none; border:none; color:#bbb; text-decoration:underline; font-size:14px;">나중에 설치할게요</button>
+<div id="ios-install-guide">
+    <p style="margin:0 0 10px 0;">아이폰 대원님! 하단 <b>공유 버튼(↑)</b>을 누른 뒤<br><b>'홈 화면에 추가'</b>를 선택하시면 설치됩니다.</p>
+    <button onclick="document.getElementById('ios-install-guide').style.display='none'" style="background:white; border:none; border-radius:10px; padding:8px 15px; font-weight:bold; color:black;">확인했습니다</button>
 </div>
 
 <div id="login-screen" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; background:#fff; padding:30px;">
@@ -151,7 +127,9 @@
     <h2>더심온 소방상담</h2>
     <input type="text" id="userName" placeholder="성함" style="width:100%; padding:15px; margin:10px 0; font-size:18px; border:1px solid #ddd; border-radius:10px; box-sizing:border-box;">
     <input type="number" id="userPhone" placeholder="전화번호 뒷자리 4자리" style="width:100%; padding:15px; margin:10px 0; font-size:18px; border:1px solid #ddd; border-radius:10px; box-sizing:border-box;">
-    <button onclick="startChat()" style="width:100%; padding:18px; background:var(--main-color); color:white; border:none; border-radius:10px; font-size:18px; font-weight:bold;">시작하기</button>
+    
+    <p style="font-size:14px; color:#666; margin-top:15px; text-align:center;">'시작하기'를 누르면 바탕화면에<br>상담 아이콘 설치창이 나타납니다.</p>
+    <button onclick="startChat()" style="width:100%; padding:18px; background:var(--main-color); color:white; border:none; border-radius:10px; font-size:18px; font-weight:bold;">상담 시작하기</button>
 </div>
 
 <div id="chat-screen">
@@ -166,36 +144,11 @@
 <script>
     let deferredPrompt; // 안드로이드 설치 이벤트를 담을 변수
 
-    // 1. 안드로이드 설치 이벤트 캡처
+    // 1. 안드로이드 설치 이벤트 미리 캡처
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        
-        // 아이콘으로 들어온 게 아니라면 설치 안내창과 버튼 보여주기
-        if (!window.matchMedia('(display-mode: standalone)').matches) {
-            document.getElementById('install-guide').style.display = 'block';
-            document.getElementById('pwa-install-btn').style.display = 'inline-block';
-        }
     });
-
-    // 2. 설치 버튼 클릭 시 동작
-    document.getElementById('pwa-install-btn').addEventListener('click', async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                document.getElementById('install-guide').style.display = 'none';
-            }
-            deferredPrompt = null;
-        }
-    });
-
-    // 3. 아이폰 유저 판단 및 안내
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    if (isIOS && !window.matchMedia('(display-mode: standalone)').matches) {
-        document.getElementById('install-guide').style.display = 'block';
-        document.getElementById('ios-guide').style.display = 'block';
-    }
 
     // 카카오톡 브라우저 탈출 로직
     const isKakao = navigator.userAgent.match(/KAKAOTALK/i);
@@ -203,20 +156,41 @@
         location.href = 'intent://' + location.host + location.pathname + '#Intent;scheme=https;package=com.android.chrome;end';
     }
 
+    // 아이폰 유저 안내 (최초 접속 시 한 번만)
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS && !window.matchMedia('(display-mode: standalone)').matches) {
+        setTimeout(() => {
+            document.getElementById('ios-install-guide').style.display = 'block';
+        }, 1000);
+    }
+
     const GAS_URL = "https://script.google.com/macros/s/AKfycby23YAnHu0H2lUgEagmh80GtTywBy1wMFkjlCoMbr_w6bxZ70X3DGNkwRsF7FcDGFqD/exec";
     let userId = "";
 
-    function startChat() {
+    // ★ [상담 시작하기] 클릭 시 실행되는 핵심 로직
+    async function startChat() {
         const n = document.getElementById('userName').value.trim();
         const p = document.getElementById('userPhone').value.trim();
-        if(n && p.length === 4) {
-            userId = n + "_" + p;
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('chat-screen').style.display = 'flex';
-            typeWriter("대원님, 반갑습니다. 따뜻한 상담사 더심온입니다. 오늘 어떤 일이 있으셨나요?");
-        } else {
-            alert("정보를 정확히 입력해주세요.");
+        
+        if(!n || p.length !== 4) {
+            alert("성함과 번호를 정확히 입력해주세요.");
+            return;
         }
+
+        userId = n + "_" + p;
+
+        // 2. 안드로이드라면 시작과 동시에 설치 창 띄우기
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`설치 선택 결과: ${outcome}`);
+            deferredPrompt = null;
+        }
+
+        // 3. 화면 전환 및 상담 시작
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('chat-screen').style.display = 'flex';
+        typeWriter("대원님, 반갑습니다. 따뜻한 상담사 더심온입니다. 오늘 어떤 일이 있으셨나요?");
     }
 
     async function sendMessage() {
@@ -271,7 +245,7 @@
         div.className = 'message bot';
         div.id = id;
         div.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
-        win.appendChild(div);
+        win.appendChild(win.appendChild(div));
         win.scrollTop = win.scrollHeight;
         return id;
     }
