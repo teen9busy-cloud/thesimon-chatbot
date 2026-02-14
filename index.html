@@ -68,24 +68,35 @@
     }
 
     async function sendMessage() {
-        const input = document.getElementById('user-input');
-        const message = input.value.trim();
-        if (!message) return;
+    const input = document.getElementById('user-input');
+    const message = input.value.trim();
+    if (!message) return;
 
-        addMessage(message, 'user');
-        input.value = '';
+    addMessage(message, 'user');
+    input.value = '';
 
-        try {
-            const response = await fetch(GAS_URL, {
-                method: 'POST',
-                body: JSON.stringify({ userId: userId, message: message, isEnd: false }) //
-            });
-            const data = await response.json();
-            addMessage(data.reply, 'bot');
-        } catch (e) {
-            addMessage("연결 오류가 발생했습니다.", 'bot');
-        }
+    // '작성 중...' 표시 추가
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message bot typing';
+    typingDiv.id = 'typing-indicator';
+    typingDiv.innerText = '상담사가 생각 중입니다...';
+    document.getElementById('chat-window').appendChild(typingDiv);
+    document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
+
+    try {
+        const response = await fetch(GAS_URL, {
+            method: 'POST',
+            body: JSON.stringify({ userId: userId, message: message, isEnd: false })
+        });
+        const data = await response.json();
+        
+        // '작성 중...' 제거 후 답변 표시
+        document.getElementById('typing-indicator').remove();
+        addMessage(data.reply, 'bot');
+    } catch (e) {
+        document.getElementById('typing-indicator').innerText = "연결 오류가 발생했습니다.";
     }
+}
 
     async function endChat() {
         if (!confirm("상담을 종료하시겠습니까? 대화 내용이 안전하게 저장됩니다.")) return;
@@ -120,3 +131,4 @@
 
 </body>
 </html>
+
