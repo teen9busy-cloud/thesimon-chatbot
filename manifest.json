@@ -5,6 +5,7 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#007bff",
+  "description": "소방 대원을 위한 마음 돌봄 상담 서비스",
   "icons": [
     {
       "src": "icon.png",
